@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2-2 Body Code - Health Tracking & Emotion Awareness</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', 'Noto Sans TC', sans-serif; }
+        .matrix-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .matrix-cell { transition: all 0.3s ease; }
+        .matrix-cell.active {
+            background-color: #2563eb !important;
+            color: white !important;
+            font-weight: bold;
+            transform: scale(1.03);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col text-slate-800">
+
+    <!-- Header -->
+    <header class="bg-indigo-900 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-3">
+            <div class="flex items-center space-x-2">
+                <i data-lucide="heart-pulse" class="w-7 h-7 text-rose-400"></i>
+                <span class="text-xl font-bold tracking-wide" data-i18n="appTitle">2-2 身體密碼 Body Code</span>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <!-- View Switcher -->
+                <div class="bg-indigo-950 p-1 rounded-lg flex text-sm font-medium border border-indigo-800">
+                    <button id="btn-student-view" onclick="switchView('student')" class="px-3 py-1.5 rounded-md bg-indigo-600 text-white shadow">
+                        <i data-lucide="user" class="w-4 h-4 inline mr-1"></i> <span data-i18n="studentTab">學生端 Student</span>
+                    </button>
+                    <button id="btn-teacher-view" onclick="switchView('teacher')" class="px-3 py-1.5 rounded-md text-indigo-200 hover:text-white">
+                        <i data-lucide="clipboard-check" class="w-4 h-4 inline mr-1"></i> <span data-i18n="teacherTab">教師端 Teacher</span>
+                    </button>
+                </div>
+
+                <!-- Language Switcher -->
+                <div class="bg-indigo-950 p-1 rounded-lg flex text-xs font-semibold border border-indigo-800">
+                    <button id="lang-zh" onclick="switchLang('zh')" class="px-2.5 py-1 rounded bg-rose-500 text-white">繁中</button>
+                    <button id="lang-en" onclick="switchLang('en')" class="px-2.5 py-1 rounded text-indigo-200 hover:text-white">EN</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-6xl w-full mx-auto p-4 md:p-6">
+
+        <!-- ==================== 學生端 Student View ==================== -->
+        <section id="student-view" class="space-y-6">
+            
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-900" data-i18n="bannerTitle">身體密碼紀錄與情緒覺察</h1>
+                    <p class="text-slate-500 text-sm mt-1" data-i18n="bannerSubtitle">認識身體數值、覺察內心情緒，並學習接納與愛護獨一無二的自己。</p>
+                </div>
+                <div class="flex items-center gap-2 bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg border border-emerald-200 text-xs font-medium shrink-0">
+                    <i data-lucide="shield-check" class="w-4 h-4"></i>
+                    <span data-i18n="privacyNotice">隱私保護：教師端僅檢視「填答狀態」與「情緒覺察反思」，身材數值已自動保護。</span>
+                </div>
+            </div>
+
+            <form id="health-form" onsubmit="handleFormSubmit(event)" class="space-y-6">
+                
+                <!-- 1. 基本資料 Basic Info -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-3 mb-4 flex items-center gap-2">
+                        <i data-lucide="user-check" class="w-5 h-5 text-indigo-600"></i> <span data-i18n="secBasic">基本資料 Basic Info</span>
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1" data-i18n="labelClass">班級 Class</label>
+                            <input type="text" id="input-class" required placeholder="e.g. 801" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1" data-i18n="labelSeat">座號 / 學號 Seat / ID</label>
+                            <input type="text" id="input-seat" required placeholder="e.g. 01" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1" data-i18n="labelName">姓名 Name</label>
+                            <input type="text" id="input-name" required placeholder="e.g. Alex Wang" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1" data-i18n="labelGender">性別 Gender</label>
+                            <div class="flex gap-4 pt-2">
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="radio" name="gender" value="Male" checked onchange="calculateAll()" class="text-indigo-600">
+                                    <span class="ml-2 text-sm text-slate-700" data-i18n="genderMale">Male (男)</span>
+                                </label>
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="radio" name="gender" value="Female" onchange="calculateAll()" class="text-indigo-600">
+                                    <span class="ml-2 text-sm text-slate-700" data-i18n="genderFemale">Female (女)</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. BMI Calculation -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-3 mb-4 flex items-center gap-2">
+                        <span class="bg-indigo-100 text-indigo-700 text-xs px-2 py-0.5 rounded font-mono">p.48</span>
+                        <i data-lucide="scale" class="w-5 h-5 text-indigo-600"></i> Body Mass Index (BMI)
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1" data-i18n="labelHeight">My Height (身高)</label>
+                                <div class="relative">
+                                    <input type="number" step="0.1" id="input-height" required placeholder="165" oninput="calculateAll()" class="w-full pl-3 pr-12 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                                    <span class="absolute right-3 top-2.5 text-sm text-slate-400">cm</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1" data-i18n="labelWeight">My Weight (體重)</label>
+                                <div class="relative">
+                                    <input type="number" step="0.1" id="input-weight" required placeholder="55" oninput="calculateAll()" class="w-full pl-3 pr-12 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                                    <span class="absolute right-3 top-2.5 text-sm text-slate-400">kg</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-center items-center text-center">
+                            <span class="text-xs font-semibold text-slate-400">YOUR BMI</span>
+                            <span id="result-bmi" class="text-4xl font-extrabold text-indigo-600 my-1">--.--</span>
+                            <div class="flex flex-wrap gap-1.5 justify-center mt-2">
+                                <span id="bmi-underweight" class="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-200 text-slate-500">Underweight</span>
+                                <span id="bmi-normal" class="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-200 text-slate-500">Normal</span>
+                                <span id="bmi-overweight" class="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-200 text-slate-500">Overweight</span>
+                                <span id="bmi-obese" class="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-200 text-slate-500">Obese</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Body Fat & 3x3 Matrix -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-3 mb-4 flex items-center gap-2">
+                        <span class="bg-indigo-100 text-indigo-700 text-xs px-2 py-0.5 rounded font-mono">p.51</span>
+                        <i data-lucide="percent" class="w-5 h-5 text-indigo-600"></i> <span data-i18n="secFat">體脂肪率與體型矩陣 Body Fat & Body Type Matrix</span>
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1" data-i18n="labelFat">體脂肪率 Body Fat Percentage</label>
+                                <div class="relative">
+                                    <input type="number" step="0.1" id="input-fat" required placeholder="18" oninput="calculateAll()" class="w-full pl-3 pr-12 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                                    <span class="absolute right-3 top-2.5 text-sm text-slate-400">%</span>
+                                </div>
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-sm space-y-1">
+                                <div class="text-xs text-slate-400 font-semibold mb-1" data-i18n="fatStatusLabel">體脂狀態 Body Fat Status:</div>
+                                <div id="fat-normal-badge" class="px-2 py-1 rounded text-xs text-center font-medium bg-slate-200 text-slate-500">Normal (正常)</div>
+                                <div id="fat-obese-badge" class="px-2 py-1 rounded text-xs text-center font-medium bg-slate-200 text-slate-500">Obese (肥胖)</div>
+                            </div>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-slate-700 mb-2" data-i18n="matrixTitle">3×3 體型九宮格判定 Body Type Matrix</label>
+                            <div class="bg-slate-100 p-2 rounded-xl border border-slate-200">
+                                <div class="matrix-grid">
+                                    <div id="cell-0" class="matrix-cell bg-white border p-3 rounded-lg text-center text-sm font-medium text-slate-700" data-i18n="cell0">發達型 Muscular</div>
+                                    <div id="cell-1" class="matrix-cell bg-white border p-3 rounded-lg text-center text-sm font-medium text-slate-700" data-i18n="cell1">強壯型 Solid</div>
+                                    <div id="cell-2" class="matrix-cell bg-white border p-3 rounded-lg text-center text-sm font-medium text-slate-700" data-i18n="cell2">肥胖型 Heavy</div>
+                                    <div id="cell-3" class="matrix-cell bg-white border p-3 rounded-lg text-center text-sm font-medium text-slate-700" data-i18n="cell3">肌肉活力型 Athletic</div>
+                                    <div id="cell-4" class="matrix-cell bg-white border p-3 rounded-lg text-center text-sm font-medium text-slate-700" data-i18n="cell4">標準型 Standard</div>
+                                    <div id="cell-5" class="matrix-cell bg-white border p-3 rounded-lg text-center text-sm font-medium text-slate-700" data-i18n="cell5">微肥型 Slightly Heavy</div>
+                                    <div id="cell-6" class="matrix-cell bg-white border p-3 rounded-lg text-center text-sm font-medium text-slate-700" data-i18n="cell6">過瘦型 Lean</div>
+                                    <div id="cell-7" class="matrix-cell bg-white border p-3 rounded-lg text-center text-sm font-medium text-slate-700" data-i18n="cell7">稍瘦型 Slender</div>
+                                    <div id="cell-8" class="matrix-cell bg-white border p-3 rounded-lg text-center text-sm font-medium text-slate-700" data-i18n="cell8">瘦肥型 Skinny Fat</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Waist-to-Hip Ratio -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-3 mb-4 flex items-center gap-2">
+                        <span class="bg-indigo-100 text-indigo-700 text-xs px-2 py-0.5 rounded font-mono">p.50</span>
+                        <i data-lucide="ruler" class="w-5 h-5 text-indigo-600"></i> Waist-to-Hip Ratio (WHR 腰臀比)
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1" data-i18n="labelWaist">My Waist line (腰圍)</label>
+                            <div class="relative">
+                                <input type="number" step="0.1" id="input-waist" required placeholder="70" oninput="calculateAll()" class="w-full pl-3 pr-12 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                                <span class="absolute right-3 top-2.5 text-sm text-slate-400">cm</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1" data-i18n="labelHip">My Hip line (臀圍)</label>
+                            <div class="relative">
+                                <input type="number" step="0.1" id="input-hip" required placeholder="85" oninput="calculateAll()" class="w-full pl-3 pr-12 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                                <span class="absolute right-3 top-2.5 text-sm text-slate-400">cm</span>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-center items-center text-center">
+                            <span class="text-xs font-semibold text-slate-400">WHR 腰臀比</span>
+                            <span id="result-whr" class="text-3xl font-extrabold text-indigo-600 my-1">--.--</span>
+                            <div class="flex gap-2 mt-1">
+                                <span id="whr-normal" class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-200 text-slate-500">Normal</span>
+                                <span id="whr-risk" class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-200 text-slate-500">Risk (有風險)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 🌸 5. Emotion Awareness & Reflection 🌸 -->
+                <div class="bg-gradient-to-br from-rose-50 via-orange-50 to-amber-50 p-6 rounded-2xl shadow-sm border border-rose-200 space-y-6">
+                    <div class="border-b border-rose-200 pb-3 flex items-center gap-2">
+                        <i data-lucide="sparkles" class="w-6 h-6 text-rose-500"></i>
+                        <div>
+                            <h2 class="text-lg font-bold text-rose-900" data-i18n="refTitle">身體密碼心靈小站：情緒覺察與反思</h2>
+                            <p class="text-xs text-rose-600" data-i18n="refSubtitle">數字只是客觀資料，不代表你的全部價值。請靜下心關注內心的感受。</p>
+                        </div>
+                    </div>
+
+                    <!-- Q1 -->
+                    <div>
+                        <label class="block text-sm font-bold text-slate-800 mb-1" data-i18n="refQ1">
+                            1. 【情緒覺察】看完今天的檢測數值，此刻在你心中的第一個情緒是什麼？（可複選）
+                        </label>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-2.5 text-sm">
+                            <label class="bg-white p-3 rounded-xl border border-rose-100 shadow-sm flex items-center space-x-2 cursor-pointer hover:border-rose-300">
+                                <input type="checkbox" name="reflection-mood" value="😃 安心與滿意 (Satisfied)" class="rounded text-rose-500">
+                                <span data-i18n="mood1">😃 安心與滿意 Satisfied</span>
+                            </label>
+                            <label class="bg-white p-3 rounded-xl border border-rose-100 shadow-sm flex items-center space-x-2 cursor-pointer hover:border-rose-300">
+                                <input type="checkbox" name="reflection-mood" value="😐 平靜與平淡 (Neutral)" class="rounded text-rose-500">
+                                <span data-i18n="mood2">😐 平靜與平淡 Neutral</span>
+                            </label>
+                            <label class="bg-white p-3 rounded-xl border border-rose-100 shadow-sm flex items-center space-x-2 cursor-pointer hover:border-rose-300">
+                                <input type="checkbox" name="reflection-mood" value="😯 驚訝與困惑 (Surprised)" class="rounded text-rose-500">
+                                <span data-i18n="mood3">😯 驚訝與困惑 Surprised</span>
+                            </label>
+                            <label class="bg-white p-3 rounded-xl border border-rose-100 shadow-sm flex items-center space-x-2 cursor-pointer hover:border-rose-300">
+                                <input type="checkbox" name="reflection-mood" value="😟 焦慮與擔心 (Anxious)" class="rounded text-rose-500">
+                                <span data-i18n="mood4">😟 焦慮與擔心 Anxious</span>
+                            </label>
+                            <label class="bg-white p-3 rounded-xl border border-rose-100 shadow-sm flex items-center space-x-2 cursor-pointer hover:border-rose-300">
+                                <input type="checkbox" name="reflection-mood" value="😔 沮喪與挫折 (Disappointed)" class="rounded text-rose-500">
+                                <span data-i18n="mood5">😔 沮喪與挫折 Disappointed</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Q2 -->
+                    <div>
+                        <label class="block text-sm font-bold text-slate-800 mb-2" data-i18n="refQ2">
+                            2. 【深層反思】為什麼這些數值會帶給你這樣的感覺？（單選）
+                        </label>
+                        <select id="reflection-reason" required class="w-full p-2.5 bg-white border border-rose-200 rounded-xl text-sm focus:ring-2 focus:ring-rose-400 focus:outline-none">
+                            <option value="" data-i18n="reasonOpt0">-- 請選擇最符合你心聲的原因 Select Reason --</option>
+                            <option value="我發現我的生活作息（飲食、運動、睡眠）真實反映在數據上了。" data-i18n="reasonOpt1">我發現我的生活作息（飲食、運動、睡眠）真實反映在數據上了。 (My lifestyle is reflected in the numbers.)</option>
+                            <option value="我習慣拿社會對身材的標準或別人的眼光，來評價自己的價值。" data-i18n="reasonOpt2">我習慣拿社會對身材的標準或別人的眼光，來評價自己的價值。 (I compare myself with social body standards.)</option>
+                            <option value="我平常太少關心自己的身體，今天才第一次認真看待它。" data-i18n="reasonOpt3">我平常太少關心自己的身體，今天才第一次認真看待它。 (I haven't paid enough attention to my body before.)</option>
+                            <option value="我發現自己太執著於『瘦才是美』或『要有肌肉』的印象。" data-i18n="reasonOpt4">我發現自己太執著於『瘦才是美』或『要有肌肉』的印象。 (I was trapped in body stereotypes.)</option>
+                        </select>
+                    </div>
+
+                    <!-- Q3 -->
+                    <div>
+                        <label class="block text-sm font-bold text-slate-800 mb-2" data-i18n="refQ3">
+                            3. 【轉念與接納】選一句你想告訴自己的「身體接納宣告」：
+                        </label>
+                        <select id="reflection-reframing" required class="w-full p-2.5 bg-white border border-rose-200 rounded-xl text-sm focus:ring-2 focus:ring-rose-400 focus:outline-none">
+                            <option value="" data-i18n="reframeOpt0">-- 請選擇一句轉念宣告 Select Affirmation --</option>
+                            <option value="【接納現狀】不管數字如何，這都是我獨一無二的身體，謝謝它每天照顧我！" data-i18n="reframeOpt1">【接納現狀】不管數字如何，這都是我獨一無二的身體，謝謝它每天照顧我！ (Acceptance: Thank my unique body.)</option>
+                            <option value="【擺脫焦慮】身體是拿來體驗世界的，不是拿來給別人評價的展覽品。" data-i18n="reframeOpt2">【擺脫焦慮】身體是拿來體驗世界的，不是拿來給別人評價的展覽品。 (Freedom: My body is for living, not judging.)</option>
+                            <option value="【正向出發】數字不是用來懲罰我的標籤，而是提醒我怎麼用對的方式愛自己。" data-i18n="reframeOpt3">【正向出發】數字不是用來懲罰我的標籤，而是提醒我怎麼用對的方式愛自己。 (Growth: Numbers show how to love myself.)</option>
+                        </select>
+                    </div>
+
+                    <!-- Q4 -->
+                    <div>
+                        <label class="block text-sm font-bold text-slate-800 mb-2" data-i18n="refQ4">
+                            4. 【愛護身體】未來一週我願意進行的具體練習（可複選）：
+                        </label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                            <label class="flex items-center space-x-2 bg-white/80 p-2.5 rounded-lg border border-rose-100">
+                                <input type="checkbox" name="action-commit" value="💧 每天喝足1500cc開水/不熬夜" class="rounded text-rose-500">
+                                <span data-i18n="act1">💧 每天喝足 1500c.c. 開水 / 不熬夜 Drink 1500cc water / No late sleep</span>
+                            </label>
+                            <label class="flex items-center space-x-2 bg-white/80 p-2.5 rounded-lg border border-rose-100">
+                                <input type="checkbox" name="action-commit" value="🏃 找喜歡的運動每週動一動" class="rounded text-rose-500">
+                                <span data-i18n="act2">🏃 找一個自己喜歡的運動，每週動一動 Exercise weekly</span>
+                            </label>
+                            <label class="flex items-center space-x-2 bg-white/80 p-2.5 rounded-lg border border-rose-100">
+                                <input type="checkbox" name="action-commit" value="🗣️ 鏡前說一句「今天辛苦了」" class="rounded text-rose-500">
+                                <span data-i18n="act3">🗣️ 鏡子前對自己說「辛苦了！」 Say "Good job" in front of mirror</span>
+                            </label>
+                            <label class="flex items-center space-x-2 bg-white/80 p-2.5 rounded-lg border border-rose-100">
+                                <input type="checkbox" name="action-commit" value="📵 減少關注引發身材焦慮的帳號" class="rounded text-rose-500">
+                                <span data-i18n="act4">📵 減少追蹤引發身材焦慮的帳號 Unfollow anxiety-inducing accounts</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex justify-end">
+                    <button type="submit" class="w-full md:w-auto px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 text-base">
+                        <i data-lucide="send" class="w-5 h-5"></i> <span data-i18n="btnSubmit">完成情緒覺察並送出紀錄 Submit Record</span>
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- ==================== 教師端 Teacher View ==================== -->
+        <section id="teacher-view" class="hidden space-y-6">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-900" data-i18n="teacherDashboardTitle">教師端 - 學生填答與情緒覺察追蹤表</h1>
+                    <p class="text-slate-500 text-sm" data-i18n="teacherDashboardSub">掌握全班填答進度與情緒覺察狀態（身材數值已自動隱藏）</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="openImportModal()" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors flex items-center gap-1.5">
+                        <i data-lucide="file-spread-sheet" class="w-4 h-4"></i> <span data-i18n="btnImportRoster">匯入班級名單 Import Roster</span>
+                    </button>
+                    <button onclick="copyUnsubmittedNames()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-lg border border-slate-300 transition-colors flex items-center gap-1.5">
+                        <i data-lucide="copy" class="w-4 h-4"></i> <span data-i18n="btnCopyPending">複製未填答學生 Copy Pending</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold text-slate-400" data-i18n="statTotal">應填總人數 Total</p>
+                        <p id="stat-total" class="text-3xl font-extrabold text-slate-800 mt-1">0</p>
+                    </div>
+                    <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl"><i data-lucide="users" class="w-6 h-6"></i></div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold text-slate-400" data-i18n="statCompleted">已完成人數 Completed</p>
+                        <p id="stat-completed" class="text-3xl font-extrabold text-emerald-600 mt-1">0</p>
+                    </div>
+                    <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl"><i data-lucide="check-circle-2" class="w-6 h-6"></i></div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold text-slate-400" data-i18n="statPending">未填答人數 Pending</p>
+                        <p id="stat-pending" class="text-3xl font-extrabold text-amber-500 mt-1">0</p>
+                    </div>
+                    <div class="p-3 bg-amber-50 text-amber-500 rounded-xl"><i data-lucide="clock" class="w-6 h-6"></i></div>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase">
+                                <th class="py-3 px-4" data-i18n="thSeat">座號 Seat</th>
+                                <th class="py-3 px-4" data-i18n="thName">姓名 Name</th>
+                                <th class="py-3 px-4" data-i18n="thStatus">填答狀態 Status</th>
+                                <th class="py-3 px-4" data-i18n="thEmotion">覺察到的情緒 Emotion</th>
+                                <th class="py-3 px-4" data-i18n="thReframing">轉念宣告 Affirmation</th>
+                                <th class="py-3 px-4" data-i18n="thActions">愛護練習 Actions</th>
+                                <th class="py-3 px-4" data-i18n="thDetail">詳情 Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teacher-table-body" class="divide-y divide-slate-100 text-sm"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal 1: Import Roster -->
+    <div id="import-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <i data-lucide="user-plus" class="w-5 h-5 text-indigo-600"></i> <span data-i18n="importModalTitle">匯入班級學生名單 Import Class Roster</span>
+                </h3>
+                <button onclick="closeImportModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="space-y-4 text-sm">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1" data-i18n="importTextLabel">貼上名單文字 (格式：座號,姓名 / Format: Seat,Name)</label>
+                    <textarea id="import-text" rows="5" placeholder="01,Alex&#10;02,Bob&#10;03,Chris" class="w-full p-3 border border-slate-300 rounded-xl font-mono text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
+                </div>
+                <div class="bg-amber-50 border border-amber-200 p-3 rounded-lg text-xs text-amber-800">
+                    <label class="inline-flex items-center cursor-pointer">
+                        <input type="radio" name="import-mode" value="replace" checked class="text-indigo-600">
+                        <span class="ml-1.5 font-medium" data-i18n="importReplace">覆蓋舊班級資料 (Replace existing)</span>
+                    </label>
+                    <br>
+                    <label class="inline-flex items-center cursor-pointer mt-1">
+                        <input type="radio" name="import-mode" value="append" class="text-indigo-600">
+                        <span class="ml-1.5 font-medium" data-i18n="importAppend">追加新增至目前名冊 (Append to current)</span>
+                    </label>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeImportModal()" class="px-4 py-2 border border-slate-300 text-slate-600 text-sm font-medium rounded-lg" data-i18n="btnCancel">取消 Cancel</button>
+                <button onclick="processImport()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg shadow-sm" data-i18n="btnConfirmImport">確認匯入 Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 2: View Reflection Modal -->
+    <div id="reflection-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="text-lg font-bold text-slate-800" id="modal-title">學生情緒覺察反思紀錄 Reflection Details</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="space-y-3 text-sm" id="modal-content"></div>
+            <div class="flex justify-end pt-2">
+                <button onclick="closeModal()" class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg" data-i18n="btnClose">關閉 Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dictionary for i18n
+        const i18n = {
+            zh: {
+                appTitle: "2-2 身體密碼 Body Code",
+                studentTab: "學生端 Student",
+                teacherTab: "教師端 Teacher",
+                bannerTitle: "身體密碼紀錄與情緒覺察",
+                bannerSubtitle: "認識身體數值、覺察內心情緒，並學習接納與愛護獨一無二的自己。",
+                privacyNotice: "隱私保護：教師端僅檢視「填答狀態」與「情緒覺察反思」，身材數值已自動保護。",
+                secBasic: "基本資料 Basic Info",
+                labelClass: "班級 Class",
+                labelSeat: "座號 / 學號 Seat / ID",
+                labelName: "姓名 Name",
+                labelGender: "性別 Gender",
+                genderMale: "Male (男)",
+                genderFemale: "Female (女)",
+                labelHeight: "My Height (身高)",
+                labelWeight: "My Weight (體重)",
+                secFat: "體脂肪率與體型矩陣 Body Fat & Body Type Matrix",
+                labelFat: "體脂肪率 Body Fat Percentage",
+                fatStatusLabel: "體脂狀態 Body Fat Status:",
+                matrixTitle: "3×3 體型九宮格判定 Body Type Matrix",
+                cell0: "發達型 Muscular", cell1: "強壯型 Solid", cell2: "肥胖型 Heavy",
+                cell3: "肌肉活力型 Athletic", cell4: "標準型 Standard", cell5: "微肥型 Slightly Heavy",
+                cell6: "過瘦型 Lean", cell7: "稍瘦型 Slender", cell8: "瘦肥型 Skinny Fat",
+                labelWaist: "My Waist line (腰圍)",
+                labelHip: "My Hip line (臀圍)",
+                refTitle: "身體密碼心靈小站：情緒覺察與反思",
+                refSubtitle: "數字只是客觀資料，不代表你的全部價值。請靜下心關注內心的感受。",
+                refQ1: "1. 【情緒覺察】看完今天的檢測數值，此刻在你心中的第一個情緒是什麼？（可複選）",
+                mood1: "😃 安心與滿意 Satisfied", mood2: "😐 平靜與平淡 Neutral", mood3: "😯 驚訝與困惑 Surprised",
+                mood4: "😟 焦慮與擔心 Anxious", mood5: "😔 沮喪與挫折 Disappointed",
+                refQ2: "2. 【深層反思】為什麼這些數值會帶給你這樣的感覺？（單選）",
+                reasonOpt0: "-- 請選擇最符合你心聲的原因 Select Reason --",
+                reasonOpt1: "我發現我的生活作息（飲食、運動、睡眠）真實反映在數據上了。",
+                reasonOpt2: "我習慣拿社會對身材的標準或別人的眼光，來評價自己的價值。",
+                reasonOpt3: "我平常太少關心自己的身體，今天才第一次認真看待它。",
+                reasonOpt4: "我發現自己太執著於『瘦才是美』或『要有肌肉』的印象。",
+                refQ3: "3. 【轉念與接納】選一句你想告訴自己的「身體接納宣告」：",
+                reframeOpt0: "-- 請選擇一句轉念宣告 Select Affirmation --",
+                reframeOpt1: "【接納現狀】不管數字如何，這都是我獨一無二的身體，謝謝它每天照顧我！",
+                reframeOpt2: "【擺脫焦慮】身體是拿來體驗世界的，不是拿來給別人評價的展覽品。",
+                reframeOpt3: "【正向出發】數字不是用來懲罰我的標籤，而是提醒我怎麼用對的方式愛自己。",
+                refQ4: "4. 【愛護身體】未來一週我願意進行的具體練習（可複選）：",
+                act1: "💧 每天喝足 1500c.c. 開水 / 不熬夜",
+                act2: "🏃 找一個自己喜歡的運動，每週動一動",
+                act3: "🗣️ 鏡子前對自己說「辛苦了！」",
+                act4: "📵 減少追蹤引發身材焦慮的帳號",
+                btnSubmit: "完成情緒覺察並送出紀錄 Submit Record",
+                teacherDashboardTitle: "教師端 - 學生填答與情緒覺察追蹤表",
+                teacherDashboardSub: "掌握全班填答進度與情緒覺察狀態（身材數值已自動隱藏）",
+                btnImportRoster: "匯入班級名單 Import Roster",
+                btnCopyPending: "複製未填答學生 Copy Pending",
+                statTotal: "應填總人數 Total",
+                statCompleted: "已完成人數 Completed",
+                statPending: "未填答人數 Pending",
+                thSeat: "座號 Seat", thName: "姓名 Name", thStatus: "填答狀態 Status",
+                thEmotion: "覺察到的情緒 Emotion", thReframing: "轉念宣告 Affirmation",
+                thActions: "愛護練習 Actions", thDetail: "詳情 Details",
+                importModalTitle: "匯入班級學生名單 Import Class Roster",
+                importTextLabel: "貼上名單文字 (格式：座號,姓名 / Format: Seat,Name)",
+                importReplace: "覆蓋舊班級資料 (Replace existing)",
+                importAppend: "追加新增至目前名冊 (Append to current)",
+                btnCancel: "取消 Cancel", btnConfirmImport: "確認匯入 Confirm", btnClose: "關閉 Close"
+            },
+            en: {
+                appTitle: "2-2 Body Code System",
+                studentTab: "Student Portal",
+                teacherTab: "Teacher Portal",
+                bannerTitle: "Body Code Tracking & Emotion Awareness",
+                bannerSubtitle: "Understand your metrics, reflect on your feelings, and learn to accept your body.",
+                privacyNotice: "Privacy Protected: Teacher portal only shows completion status and emotional reflection.",
+                secBasic: "Basic Information",
+                labelClass: "Class",
+                labelSeat: "Seat / Student ID",
+                labelName: "Name",
+                labelGender: "Gender",
+                genderMale: "Male",
+                genderFemale: "Female",
+                labelHeight: "My Height",
+                labelWeight: "My Weight",
+                secFat: "Body Fat % & Body Type Matrix",
+                labelFat: "Body Fat Percentage",
+                fatStatusLabel: "Body Fat Status:",
+                matrixTitle: "3×3 Body Type Matrix",
+                cell0: "Muscular", cell1: "Solid", cell2: "Heavy",
+                cell3: "Athletic", cell4: "Standard", cell5: "Slightly Heavy",
+                cell6: "Lean", cell7: "Slender", cell8: "Skinny Fat",
+                labelWaist: "My Waist line",
+                labelHip: "My Hip line",
+                refTitle: "Heart Station: Emotional Awareness",
+                refSubtitle: "Numbers do not define your total value. Focus on your inner feelings.",
+                refQ1: "1. [Emotion Awareness] How do you feel looking at your numbers right now?",
+                mood1: "😃 Satisfied & Safe", mood2: "😐 Neutral & Calm", mood3: "😯 Surprised & Confused",
+                mood4: "😟 Anxious & Worried", mood5: "😔 Disappointed & Frustrated",
+                refQ2: "2. [Deep Reflection] Why do these numbers make you feel this way?",
+                reasonOpt0: "-- Select the reason that best describes your feeling --",
+                reasonOpt1: "My daily habits (diet, sports, sleep) are reflected in the numbers.",
+                reasonOpt2: "I tend to evaluate my worth based on social body standards.",
+                reasonOpt3: "I haven't paid enough attention to my body before.",
+                reasonOpt4: "I was trapped in stereotypes like 'slimmer is better'.",
+                refQ3: "3. [Body Affirmation] Choose an affirmation statement for yourself:",
+                reframeOpt0: "-- Select an affirmation statement --",
+                reframeOpt1: "[Acceptance] Regardless of numbers, thank my unique body for caring for me!",
+                reframeOpt2: "[Freedom] My body is for living and experiencing the world, not for judging.",
+                reframeOpt3: "[Growth] Numbers are not penalties; they show me how to love myself.",
+                refQ4: "4. [Body Care] Practicing self-care actions next week:",
+                act1: "💧 Drink 1500cc water daily / No late sleep",
+                act2: "🏃 Do a sport I enjoy every week",
+                act3: "🗣️ Say 'Good job!' to myself in front of mirror",
+                act4: "📵 Unfollow social media accounts that cause body anxiety",
+                btnSubmit: "Submit Record & Reflection",
+                teacherDashboardTitle: "Teacher Dashboard - Completion & Reflection Tracking",
+                teacherDashboardSub: "Track completion rate & emotional reflections (Metrics hidden for privacy).",
+                btnImportRoster: "Import Roster",
+                btnCopyPending: "Copy Pending List",
+                statTotal: "Total Students",
+                statCompleted: "Completed",
+                statPending: "Pending",
+                thSeat: "Seat", thName: "Name", thStatus: "Status",
+                thEmotion: "Emotion Awareness", thReframing: "Affirmation",
+                thActions: "Self-care Actions", thDetail: "Details",
+                importModalTitle: "Import Class Roster",
+                importTextLabel: "Paste Roster Text (Format: Seat,Name)",
+                importReplace: "Replace existing roster",
+                importAppend: "Append to current roster",
+                btnCancel: "Cancel", btnConfirmImport: "Confirm Import", btnClose: "Close"
+            }
+        };
+
+        let currentLang = 'zh';
+
+        function switchLang(lang) {
+            currentLang = lang;
+            document.getElementById('lang-zh').className = lang === 'zh' ? "px-2.5 py-1 rounded bg-rose-500 text-white" : "px-2.5 py-1 rounded text-indigo-200 hover:text-white";
+            document.getElementById('lang-en').className = lang === 'en' ? "px-2.5 py-1 rounded bg-rose-500 text-white" : "px-2.5 py-1 rounded text-indigo-200 hover:text-white";
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (i18n[lang][key]) {
+                    el.innerText = i18n[lang][key];
+                }
+            });
+
+            renderTeacherTable();
+        }
+
+        const initialStudents = [
+            { 
+                id: "01", name: "Alex Wang", gender: "Male", submitted: true, timestamp: "2026-10-01 09:12",
+                moods: ["😃 安心與滿意 Satisfied"],
+                reason: "我發現我的生活作息（飲食、運動、睡眠）真實反映在數據上了。",
+                reframing: "【接納現狀】不管數字如何，這都是我獨一無二的身體，謝謝它每天照顧我！",
+                actions: ["💧 每天喝足1500cc開水/不熬夜", "🏃 找喜歡的運動每週動一動"]
+            },
+            { 
+                id: "02", name: "Emily Li", gender: "Female", submitted: true, timestamp: "2026-10-01 09:15",
+                moods: ["😟 焦慮與擔心 Anxious"],
+                reason: "我習慣拿社會對身材的標準或別人的眼光，來評價自己的價值。",
+                reframing: "【擺脫焦慮】身體是拿來體驗世界的，不是拿來給別人評價的展覽品。",
+                actions: ["🗣️ 鏡前說一句「今天辛苦了」", "📵 減少關注引發身材焦慮的帳號"]
+            },
+            { id: "03", name: "David Zhang", gender: "Male", submitted: false, timestamp: "-", moods: [], reason: "-", reframing: "-", actions: [] }
+        ];
+
+        let studentList = JSON.parse(localStorage.getItem('bodyCode_students')) || initialStudents;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            calculateAll();
+            renderTeacherTable();
+        });
+
+        function switchView(view) {
+            const studentSec = document.getElementById('student-view');
+            const teacherSec = document.getElementById('teacher-view');
+            const btnStudent = document.getElementById('btn-student-view');
+            const btnTeacher = document.getElementById('btn-teacher-view');
+
+            if (view === 'student') {
+                studentSec.classList.remove('hidden');
+                teacherSec.classList.add('hidden');
+                btnStudent.className = "px-3 py-1.5 rounded-md bg-indigo-600 text-white shadow";
+                btnTeacher.className = "px-3 py-1.5 rounded-md text-indigo-200 hover:text-white";
+            } else {
+                studentSec.classList.add('hidden');
+                teacherSec.classList.remove('hidden');
+                btnTeacher.className = "px-3 py-1.5 rounded-md bg-indigo-600 text-white shadow";
+                btnStudent.className = "px-3 py-1.5 rounded-md text-indigo-200 hover:text-white";
+                renderTeacherTable();
+            }
+        }
+
+        function calculateAll() {
+            const h = parseFloat(document.getElementById('input-height').value) / 100;
+            const w = parseFloat(document.getElementById('input-weight').value);
+            const fat = parseFloat(document.getElementById('input-fat').value);
+            const waist = parseFloat(document.getElementById('input-waist').value);
+            const hip = parseFloat(document.getElementById('input-hip').value);
+            const gender = document.querySelector('input[name="gender"]:checked').value;
+
+            let bmiCategory = -1;
+            let fatCategory = -1;
+
+            if (h > 0 && w > 0) {
+                const bmi = (w / (h * h)).toFixed(1);
+                document.getElementById('result-bmi').innerText = bmi;
+                resetBadges(['bmi-underweight', 'bmi-normal', 'bmi-overweight', 'bmi-obese']);
+                if (bmi < 18.5) { bmiCategory = 0; activateBadge('bmi-underweight', 'bg-amber-500 text-white'); }
+                else if (bmi < 24) { bmiCategory = 1; activateBadge('bmi-normal', 'bg-emerald-500 text-white'); }
+                else if (bmi < 27) { bmiCategory = 2; activateBadge('bmi-overweight', 'bg-orange-500 text-white'); }
+                else { bmiCategory = 3; activateBadge('bmi-obese', 'bg-rose-600 text-white'); }
+            }
+
+            if (!isNaN(fat)) {
+                resetBadges(['fat-normal-badge', 'fat-obese-badge']);
+                const isMale = gender === 'Male';
+                if (fat < (isMale ? 12 : 18)) { fatCategory = 0; activateBadge('fat-normal-badge', 'bg-blue-500 text-white'); }
+                else if (fat < (isMale ? 25 : 30)) { fatCategory = 1; activateBadge('fat-normal-badge', 'bg-emerald-500 text-white'); }
+                else { fatCategory = 2; activateBadge('fat-obese-badge', 'bg-rose-600 text-white'); }
+            }
+
+            clearMatrix();
+            if (bmiCategory !== -1 && fatCategory !== -1) {
+                let cellIndex = -1;
+                if (bmiCategory >= 2) cellIndex = fatCategory === 0 ? 0 : fatCategory === 1 ? 1 : 2;
+                else if (bmiCategory === 1) cellIndex = fatCategory === 0 ? 3 : fatCategory === 1 ? 4 : 5;
+                else cellIndex = fatCategory === 0 ? 6 : fatCategory === 1 ? 7 : 8;
+
+                const activeCell = document.getElementById(`cell-${cellIndex}`);
+                if (activeCell) activeCell.classList.add('active');
+            }
+
+            if (waist > 0 && hip > 0) {
+                const whr = (waist / hip).toFixed(2);
+                document.getElementById('result-whr').innerText = whr;
+                resetBadges(['whr-normal', 'whr-risk']);
+                const cutoff = gender === 'Male' ? 0.9 : 0.8;
+                if (whr < cutoff) activateBadge('whr-normal', 'bg-emerald-500 text-white');
+                else activateBadge('whr-risk', 'bg-rose-600 text-white');
+            }
+        }
+
+        function resetBadges(ids) {
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.className = "px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-200 text-slate-500 transition-colors";
+            });
+        }
+
+        function activateBadge(id, activeClasses) {
+            const el = document.getElementById(id);
+            if (el) el.className = `px-2.5 py-0.5 rounded-full text-xs font-medium shadow-sm transition-colors ${activeClasses}`;
+        }
+
+        function clearMatrix() {
+            for (let i = 0; i < 9; i++) {
+                const cell = document.getElementById(`cell-${i}`);
+                if (cell) cell.classList.remove('active');
+            }
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const seat = document.getElementById('input-seat').value.trim();
+            const name = document.getElementById('input-name').value.trim();
+            const gender = document.querySelector('input[name="gender"]:checked').value;
+
+            const moods = [];
+            document.querySelectorAll('input[name="reflection-mood"]:checked').forEach(cb => {
+                moods.push(cb.value);
+            });
+
+            const reason = document.getElementById('reflection-reason').value || "N/A";
+            const reframing = document.getElementById('reflection-reframing').value || "N/A";
+
+            const actions = [];
+            document.querySelectorAll('input[name="action-commit"]:checked').forEach(cb => {
+                actions.push(cb.value);
+            });
+
+            const now = new Date();
+            const timestamp = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+            const index = studentList.findIndex(s => s.id === seat || s.name === name);
+            const studentRecord = {
+                id: seat,
+                name: name,
+                gender: gender,
+                submitted: true,
+                timestamp: timestamp,
+                moods: moods.length > 0 ? moods : ["N/A"],
+                reason: reason,
+                reframing: reframing,
+                actions: actions
+            };
+
+            if (index !== -1) {
+                studentList[index] = studentRecord;
+            } else {
+                studentList.push(studentRecord);
+            }
+
+            localStorage.setItem('bodyCode_students', JSON.stringify(studentList));
+            alert(currentLang === 'zh' ? '💖 感謝完成情緒覺察與反思！紀錄已成功送出！' : '💖 Thank you for completing your reflection! Submitted successfully.');
+            switchView('teacher');
+        }
+
+        function renderTeacherTable() {
+            const tbody = document.getElementById('teacher-table-body');
+            tbody.innerHTML = '';
+            let completedCount = 0;
+
+            const sortedList = [...studentList].sort((a, b) => parseInt(a.id) - parseInt(b.id));
+
+            sortedList.forEach(student => {
+                if (student.submitted) completedCount++;
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition-colors";
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-mono font-medium text-slate-700">${student.id}</td>
+                    <td class="py-3 px-4 font-medium text-slate-900">${student.name}</td>
+                    <td class="py-3 px-4">
+                        ${student.submitted 
+                            ? `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700"><i data-lucide="check" class="w-3 h-3"></i> ${currentLang==='zh'?'已完成':'Completed'}</span>`
+                            : `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700"><i data-lucide="x" class="w-3 h-3"></i> ${currentLang==='zh'?'未填答':'Pending'}</span>`
+                        }
+                    </td>
+                    <td class="py-3 px-4 text-xs font-medium text-slate-700">
+                        ${student.submitted ? student.moods.join(', ') : '-'}
+                    </td>
+                    <td class="py-3 px-4 text-xs text-slate-600 max-w-xs truncate">
+                        ${student.submitted ? student.reframing : '-'}
+                    </td>
+                    <td class="py-3 px-4 text-xs text-slate-500">
+                        ${student.submitted && student.actions.length > 0 
+                            ? `<span class="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded border border-indigo-100">${student.actions.length}${currentLang==='zh'?'項練習':'Actions'}</span>` 
+                            : '-'}
+                    </td>
+                    <td class="py-3 px-4">
+                        ${student.submitted 
+                            ? `<button onclick="openModal('${student.id}')" class="text-indigo-600 hover:text-indigo-800 text-xs font-semibold underline">${currentLang==='zh'?'檢視反思':'View'}</button>` 
+                            : '-'}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('stat-total').innerText = studentList.length;
+            document.getElementById('stat-completed').innerText = completedCount;
+            document.getElementById('stat-pending').innerText = studentList.length - completedCount;
+            lucide.createIcons();
+        }
+
+        function openModal(studentId) {
+            const student = studentList.find(s => s.id === studentId);
+            if (!student) return;
+
+            document.getElementById('modal-title').innerText = `${student.id} - ${student.name} ${currentLang==='zh'?'的情緒覺察反思紀錄':'Reflection Details'}`;
+            
+            let actionsHtml = student.actions.length > 0 
+                ? student.actions.map(a => `<li class="text-emerald-700 font-medium">✓ ${a}</li>`).join('')
+                : '<li class="text-slate-400">None</li>';
+
+            document.getElementById('modal-content').innerHTML = `
+                <div class="bg-rose-50/70 p-3 rounded-xl border border-rose-100">
+                    <span class="text-xs text-rose-500 font-semibold block mb-1">1. ${currentLang==='zh'?'標示出的內心情緒':'Emotion Awareness'}:</span>
+                    <p class="text-slate-800 font-bold">${student.moods.join('、 ')}</p>
+                </div>
+                <div class="bg-amber-50/70 p-3 rounded-xl border border-amber-100">
+                    <span class="text-xs text-amber-600 font-semibold block mb-1">2. ${currentLang==='zh'?'最符合的心聲原因':'Deep Reflection'}:</span>
+                    <p class="text-slate-700 font-medium">${student.reason}</p>
+                </div>
+                <div class="bg-indigo-50/70 p-3 rounded-xl border border-indigo-100">
+                    <span class="text-xs text-indigo-600 font-semibold block mb-1">3. ${currentLang==='zh'?'身體接納宣告':'Affirmation Statement'}:</span>
+                    <p class="text-indigo-900 font-bold">"${student.reframing}"</p>
+                </div>
+                <div class="bg-emerald-50/70 p-3 rounded-xl border border-emerald-100">
+                    <span class="text-xs text-emerald-600 font-semibold block mb-1">4. ${currentLang==='zh'?'未來一週具體行動':'Self-care Actions'}:</span>
+                    <ul class="space-y-1 text-xs mt-1">
+                        ${actionsHtml}
+                    </ul>
+                </div>
+                <div class="text-right text-[11px] text-slate-400 pt-1">${student.timestamp}</div>
+            `;
+
+            document.getElementById('reflection-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('reflection-modal').classList.add('hidden');
+        }
+
+        function openImportModal() {
+            document.getElementById('import-modal').classList.remove('hidden');
+        }
+
+        function closeImportModal() {
+            document.getElementById('import-modal').classList.add('hidden');
+            document.getElementById('import-text').value = '';
+        }
+
+        function processImport() {
+            const rawText = document.getElementById('import-text').value.trim();
+            const mode = document.querySelector('input[name="import-mode"]:checked').value;
+
+            if (!rawText) {
+                alert(currentLang === 'zh' ? '請先輸入文字名單！' : 'Please paste roster text first!');
+                return;
+            }
+
+            const lines = rawText.split(/\r?\n/);
+            const newParsedStudents = [];
+
+            lines.forEach(line => {
+                if (!line.trim()) return;
+                const parts = line.split(/[,，\s\t]+/);
+                if (parts.length >= 2) {
+                    const id = parts[0].trim().padStart(2, '0');
+                    const name = parts[1].trim();
+                    if (id && name) {
+                        newParsedStudents.push({
+                            id: id,
+                            name: name,
+                            gender: "Unspecified",
+                            submitted: false,
+                            timestamp: "-",
+                            moods: [],
+                            reason: "-",
+                            reframing: "-",
+                            actions: []
+                        });
+                    }
+                }
+            });
+
+            if (newParsedStudents.length === 0) {
+                alert(currentLang === 'zh' ? '未能解析出有效資料（格式：01,王小明）' : 'No valid data parsed. Format: 01,Name');
+                return;
+            }
+
+            if (mode === 'replace') {
+                studentList = newParsedStudents;
+            } else {
+                newParsedStudents.forEach(newStu => {
+                    const idx = studentList.findIndex(s => s.id === newStu.id);
+                    if (idx === -1) studentList.push(newStu);
+                });
+            }
+
+            localStorage.setItem('bodyCode_students', JSON.stringify(studentList));
+            renderTeacherTable();
+            closeImportModal();
+            alert(`${currentLang==='zh'?'成功匯入':'Successfully imported'} ${newParsedStudents.length} ${currentLang==='zh'?'位學生名單':'students'}`);
+        }
+
+        function copyUnsubmittedNames() {
+            const unsubmitted = studentList.filter(s => !s.submitted).map(s => `${s.id} ${s.name}`);
+            if (unsubmitted.length === 0) {
+                alert(currentLang === 'zh' ? '全班皆已完成填答！🎉' : 'All students have completed!');
+                return;
+            }
+            navigator.clipboard.writeText(`【Pending List / 未完成名單】:\n` + unsubmitted.join('\n'));
+            alert(currentLang === 'zh' ? '已成功複製未填答學生名單！' : 'Pending student list copied to clipboard!');
+        }
+    </script>
+</body>
+</html>
